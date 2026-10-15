@@ -1,227 +1,50 @@
-$(window).load(function () {
-	$('#preloader').fadeOut('slow', function () { $(this).remove(); });
+'use strict';
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (!reduceMotion.matches && 'IntersectionObserver' in window) {
+  document.documentElement.classList.add('js-motion');
+  const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+  }), { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+const toggle = document.querySelector('.menu-toggle');
+const nav = document.querySelector('#navigation');
+function closeMenu() { nav.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
+toggle.addEventListener('click', () => { const open = nav.classList.toggle('open'); toggle.setAttribute('aria-expanded', String(open)); });
+nav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); toggle.focus(); } });
+document.addEventListener('click', e => { if (!e.target.closest('.site-header')) closeMenu(); });
+window.matchMedia('(min-width: 761px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
+const progress = document.querySelector('.scroll-progress');
+let scrollPending = false;
+function updateProgress() { const distance = document.documentElement.scrollHeight - innerHeight; progress.style.width = `${distance > 0 ? scrollY / distance * 100 : 0}%`; scrollPending = false; }
+window.addEventListener('scroll', () => { if (!scrollPending) { scrollPending = true; requestAnimationFrame(updateProgress); } }, { passive: true });
+window.addEventListener('resize', updateProgress); updateProgress();
+if ('IntersectionObserver' in window) {
+  const sections = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) nav.querySelectorAll('a').forEach(a => { const active = a.hash === '#' + entry.target.id; a.classList.toggle('active', active); if (active) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  }), { rootMargin: '-15% 0px -55% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => sections.observe(s));
+}
+const projectCards = [...document.querySelectorAll('.project-card')];
+document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-filter]').forEach(b => { const active = b === button; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active)); });
+  let count = 0;
+  projectCards.forEach(card => { card.hidden = button.dataset.filter !== 'all' && card.dataset.category !== button.dataset.filter; if (!card.hidden) { count++; card.classList.add('visible'); } });
+  document.querySelector('#filter-status').textContent = `${count} proyectos visibles`;
+}));
+const dialog = document.querySelector('#project-dialog');
+document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+  document.querySelector('#dialog-title').textContent = button.dataset.title;
+  const img = document.querySelector('#dialog-image'); img.src = button.dataset.image; img.alt = `Vista ampliada de ${button.dataset.title}`;
+  dialog.showModal(); document.body.style.overflow = 'hidden';
+}));
+document.querySelector('#close-dialog').addEventListener('click', () => dialog.close());
+dialog.addEventListener('click', e => { if (e.target === dialog) { const rect = dialog.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) dialog.close(); } });
+dialog.addEventListener('close', () => { document.body.style.overflow = ''; });
+document.querySelector('#copy-email').addEventListener('click', async () => {
+  const status = document.querySelector('#copy-status');
+  try { await navigator.clipboard.writeText('rbaezlobos@gmail.com'); status.textContent = 'Email copiado.'; }
+  catch { status.textContent = 'Puedes copiarlo aquí: rbaezlobos@gmail.com'; }
 });
-
-
-
-/* Menu */
-(function () {
-
-	var bodyEl = document.body,
-		//content = document.querySelector( '.content-wrap' ),
-		openbtn = document.getElementById('open-button'),
-		closebtn = document.getElementById('close-button'),
-		isOpen = false;
-
-	function init() {
-		initEvents();
-	}
-
-	function initEvents() {
-		openbtn.addEventListener('click', toggleMenu);
-		if (closebtn) {
-			closebtn.addEventListener('click', toggleMenu);
-		}
-	}
-
-	function toggleMenu() {
-		if (isOpen) {
-			classie.remove(bodyEl, 'show-menu');
-		}
-		else {
-			classie.add(bodyEl, 'show-menu');
-		}
-		isOpen = !isOpen;
-	}
-
-	init();
-
-})();
-/* smooth scrolling */
-$(document).ready(function () {
-	$("a").on('click', function (event) {
-		if (this.hash !== "") {
-
-			event.preventDefault();
-			var hash = this.hash;
-			$('html, body').animate({
-				scrollTop: $(hash).offset().top
-			}, 800, function () {
-
-				window.location.hash = hash;
-			});
-		}
-	});
-});
-
-(function () {
-	"use strict";
-
-	/**
-	 * Easy selector helper function
-	 */
-	const select = (el, all = false) => {
-		el = el.trim()
-		if (all) {
-			return [...document.querySelectorAll(el)]
-		} else {
-			return document.querySelector(el)
-		}
-	}
-
-	/**
-	 * Easy event listener function
-	 */
-	const on = (type, el, listener, all = false) => {
-		let selectEl = select(el, all)
-		if (selectEl) {
-			if (all) {
-				selectEl.forEach(e => e.addEventListener(type, listener))
-			} else {
-				selectEl.addEventListener(type, listener)
-			}
-		}
-	}
-
-	/**
-	 * Easy on scroll event listener
-	 */
-	const onscroll = (el, listener) => {
-		el.addEventListener('scroll', listener)
-	}
-
-	/**
-	 * Scrolls to an element with header offset
-	 */
-	const scrollto = (el) => {
-		let header = select('#header')
-		let offset = header.offsetHeight
-
-		let elementPos = select(el).offsetTop
-		window.scrollTo({
-			top: elementPos - offset,
-			behavior: 'smooth'
-		})
-	}
-
-	/**
-	 * Back to top button
-	 */
-	let backtotop = select('.back-to-top')
-	if (backtotop) {
-		const toggleBacktotop = () => {
-			if (window.scrollY > 100) {
-				backtotop.classList.add('active')
-			} else {
-				backtotop.classList.remove('active')
-			}
-		}
-		window.addEventListener('load', toggleBacktotop)
-		onscroll(document, toggleBacktotop)
-	}
-
-	/**
-	 * Mobile nav toggle
-	 */
-	on('click', '.mobile-nav-toggle', function (e) {
-		select('#navbar').classList.toggle('navbar-mobile')
-		this.classList.toggle('bi-list')
-		this.classList.toggle('bi-x')
-	})
-
-	/**
-	 * Mobile nav dropdowns activate
-	 */
-	on('click', '.navbar .dropdown > a', function (e) {
-		if (select('#navbar').classList.contains('navbar-mobile')) {
-			e.preventDefault()
-			this.nextElementSibling.classList.toggle('dropdown-active')
-		}
-	}, true)
-
-	/**
-	 * Scrool with ofset on links with a class name .scrollto
-	 */
-	on('click', '.scrollto', function (e) {
-		if (select(this.hash)) {
-			e.preventDefault()
-
-			let navbar = select('#navbar')
-			if (navbar.classList.contains('navbar-mobile')) {
-				navbar.classList.remove('navbar-mobile')
-				let navbarToggle = select('.mobile-nav-toggle')
-				navbarToggle.classList.toggle('bi-list')
-				navbarToggle.classList.toggle('bi-x')
-			}
-			scrollto(this.hash)
-		}
-	}, true)
-
-	/**
-	 * Scroll with ofset on page load with hash links in the url
-	 */
-
-
-	/**
-	 * Preloader
-	 */
-	let preloader = select('#preloader');
-	if (preloader) {
-		window.addEventListener('load', () => {
-			preloader.remove()
-		});
-	}
-
-
-
-	/**
-	 * Initiate portfolio lightbox
-	 */
-	const portfolioLightbox = GLightbox({
-		selector: '.portfolio-lightbox'
-	});
-
-	/**
-	 * Initiate portfolio details lightbox
-	 */
-	const portfolioDetailsLightbox = GLightbox({
-		selector: '.portfolio-details-lightbox',
-		width: '90%',
-		height: '90vh'
-	});
-
-	/**
-	 * Portfolio details slider
-	 */
-	new Swiper('.portfolio-details-slider', {
-		speed: 400,
-		loop: true,
-		autoplay: {
-			delay: 5000,
-			disableOnInteraction: false
-		},
-		pagination: {
-			el: '.swiper-pagination',
-			type: 'bullets',
-			clickable: true
-		}
-	});
-
-	/**
-	 * Skills animation
-	 */
-	let skilsContent = select('.skills-content');
-	if (skilsContent) {
-		new Waypoint({
-			element: skilsContent,
-			offset: '80%',
-			handler: function (direction) {
-				let progress = select('.progress .progress-bar', true);
-				progress.forEach((el) => {
-					el.style.width = el.getAttribute('aria-valuenow') + '%'
-				});
-			}
-		})
-	}
-
-})()
+document.querySelector('#year').textContent = new Date().getFullYear();

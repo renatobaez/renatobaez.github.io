@@ -1,11 +1,17 @@
-# ME
-¡Bienvenido a mi CV y portafolio!
+# Renato Báez Lobos · Currículum y portafolio
 
-PULL REQUESTS
-https://github.com/javiernfigueroa/javiernfigueroa.github.io
-https://github.com/AngelloAbor/AngelloAbor.github.io
-https://github.com/burgosuc/burgosuc.github.io-curriculo
-https://github.com/jorgelopezd/portafolio
-https://github.com/anfereme23/anfereme23.github.io
-https://github.com/Val393/Val393.github.io
-https://github.com/mattias914/mattias914.github.io
+Este repositorio contiene mi sitio personal: un currículum digital y portafolio donde presento mi trayectoria profesional, formación, habilidades y proyectos de desarrollo de software.
+
+Soy ingeniero en Computación e Informática, con más de 12 años de experiencia en desarrollo de software y gestión de proyectos TI. Estoy en Iquique, Chile, soy **cofundador de [rside.cl](https://rside.cl)** y **fundador de [prendeo.cl](https://prendeo.cl)**.
+
+## Sitio web
+
+Visita mi currículum y portafolio en **[renatobaez.github.io](https://renatobaez.github.io)**.
+
+
+## Contacto
+
+- **Correo:** [rbaezlobos@gmail.com](mailto:rbaezlobos@gmail.com)
+- **WhatsApp:** [Escríbeme por WhatsApp](https://wa.link/gp3rpz)
+- **rside:** [rside.cl](https://rside.cl)
+- **prendeo:** [prendeo.cl](https://prendeo.cl)
